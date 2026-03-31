@@ -38,14 +38,22 @@ public class WalletService {
 
     /**
      * Get wallet balance for a user
+     * If wallet doesn't exist, create one with 0 balance
      * 
      * @param userId user's ID
      * @return wallet with balance
-     * @throws AppException if user or wallet not found
+     * @throws AppException if user not found
      */
     public Wallet getBalance(Long userId) {
         return walletRepository.findById(userId)
-                .orElseThrow(() -> new AppException("Wallet not found"));
+                .orElseGet(() -> {
+                    // Create wallet if not found
+                    Wallet wallet = Wallet.builder()
+                            .userId(userId)
+                            .balance(0.0)
+                            .build();
+                    return walletRepository.save(wallet);
+                });
     }
 
     /**
